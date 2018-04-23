@@ -82,7 +82,10 @@ const Cards: CardDeck[] = [
       Global.PlayerScript.health += 1;
     }
   },
-]
+];
+
+const _cards = shuffle(Cards.slice(0));
+let _seq = 0;
 
 @ccclass
 export default class Card extends cc.Component {
@@ -93,29 +96,27 @@ export default class Card extends cc.Component {
   @property(cc.Label)
   elixir: cc.Label = null;
 
-  private _cards: CardDeck[];
-  private _seq: number = 0;
   private _initialPosition: cc.Vec2;
   private _initialNameColor: cc.Color;
   private _initialElixirColor: cc.Color;
+  private _currentCard: CardDeck;
 
   onLoad() {
     this._initialPosition = this.node.position;
     this._initialElixirColor = this.elixir.node.color;
     this._initialNameColor = this.cardName.node.color;
-    this._cards = shuffle(Cards.slice(0));
     this.drawCard();
   }
 
   private drawCard() {
-    this._seq++;
-    const card = this.currentCard();
-    this.cardName.string = card.cardName;
-    this.elixir.string = card.elixir.toString();
+    _seq++;
+    this._currentCard = _cards[_seq % _cards.length];
+    this.cardName.string = this._currentCard.cardName;
+    this.elixir.string = this._currentCard.elixir.toString();
   }
 
   private currentCard() {
-    return this._cards[this._seq % this._cards.length];
+    return this._currentCard;
   }
 
   onClick(e: cc.Event.EventMouse) {
@@ -132,6 +133,7 @@ export default class Card extends cc.Component {
           this.drawCard();
         }),
         cc.place(this._initialPosition),
+        cc.delayTime(1),
         cc.spawn(
           cc.scaleTo(0.25, 1, 1),
           cc.fadeIn(0.25),
