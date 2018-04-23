@@ -34,7 +34,10 @@ export default class Player extends cc.Component {
   public get health(): number { return this._health; }
   public set health(v: number) {
     if (v == this._health - 1) {
-      this.node.runAction(cc.blink(1, 5));
+      this.node.runAction(cc.sequence(
+        cc.blink(1, 5),
+        cc.show()
+      ));
       this.playSound("hurt");
     }
     if (v > this._health) {
