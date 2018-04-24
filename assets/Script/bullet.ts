@@ -1,5 +1,6 @@
 import Enemy from "./enemy";
 import Player from "./player";
+import AddCollider from "./add_collider";
 
 const { ccclass, property } = cc._decorator;
 
@@ -29,12 +30,22 @@ export default class Bullet extends cc.Component {
     }
   }
 
-  onCollisionEnter(other: cc.Collider, self: cc.Collider) {
+  onCollisionEnter(other: cc.BoxCollider, self: cc.BoxCollider) {
+
     if (other.tag !== 0) {
       return;
     }
     if (this.from == other.node) {
       return;
+    }
+    if (!this.isValid) {
+      return;
+    }
+
+    const c = other.getComponent(AddCollider);
+    if (c && !c.isEdge(other.offset)) {
+      c.removeTileAtPosition(other.offset);
+      other.destroy();
     }
     const e = other.getComponent(Enemy);
     if (e) {

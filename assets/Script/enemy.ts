@@ -72,7 +72,7 @@ export default class Enemy extends cc.Component {
         this.shoot();
       }
 
-    }, 1, cc.macro.REPEAT_FOREVER);
+    }, 2, cc.macro.REPEAT_FOREVER);
   }
 
   move(direction: ("up" | "down" | "right" | "left"), callback?: Function) {

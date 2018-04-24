@@ -14,6 +14,9 @@ export default class Player extends cc.Component {
   @property(cc.ProgressBar)
   private progressBar: cc.ProgressBar = null;
 
+  @property(cc.ProgressBar)
+  private heathProgressBar: cc.ProgressBar = null;
+
   @property(cc.Label)
   private elixirValue: cc.Label = null;
 
@@ -24,6 +27,7 @@ export default class Player extends cc.Component {
   private healthValue: cc.Label = null;
 
   private _bullet: number;
+  private MAX_HEALTH: number = 5;
   public get bullet(): number { return this._bullet; }
   public set bullet(v: number) {
     this._bullet = v;
@@ -33,6 +37,9 @@ export default class Player extends cc.Component {
   private _health: number;
   public get health(): number { return this._health; }
   public set health(v: number) {
+    if (v > this.MAX_HEALTH) {
+      return;
+    }
     if (v == this._health - 1) {
       this.node.runAction(cc.sequence(
         cc.blink(1, 5),
@@ -50,6 +57,7 @@ export default class Player extends cc.Component {
       Global.CanvasScript.gameOver("You Lost!");
       return;
     }
+    this.heathProgressBar.progress = v / this.MAX_HEALTH;
     this._health = v;
     this.healthValue.string = v.toString();
   }
@@ -72,6 +80,7 @@ export default class Player extends cc.Component {
     this.size = this.node.getContentSize().width;
     Global.PlayerNode = this.node;
     Global.PlayerScript = this;
+    this.health = this.MAX_HEALTH;
     this.bullet = 5;
     this.health = 5;
   }
@@ -95,7 +104,7 @@ export default class Player extends cc.Component {
     if (Global.Pause) return;
 
     if (this.elixir <= this.MAX_ELIXIR) {
-      this.elixir += dt;
+      this.elixir += 0.5 * dt;
     }
 
     if (!this._moving && this._moveQueue.length > 0) {
@@ -152,6 +161,14 @@ export default class Player extends cc.Component {
       new cc.Vec2(aabb.x + aabb.width / 2, aabb.y + aabb.width / 2)
     );
     this._overlap[pos.toString()] = true;
+  }
+
+  onCollisionExit(other, self) {
+    const aabb = other.world.aabb;
+    const pos = this.node.parent.convertToNodeSpaceAR(
+      new cc.Vec2(aabb.x + aabb.width / 2, aabb.y + aabb.width / 2)
+    );
+    this._overlap[pos.toString()] = null;
   }
 
 }
