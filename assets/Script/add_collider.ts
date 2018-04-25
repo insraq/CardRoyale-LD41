@@ -9,14 +9,21 @@ export default class AddCollider extends cc.Component {
     const tileSize = tl.getMapTileSize();
     for (let x = 0; x < size.width; x++) {
       for (let y = 0; y < size.height; y++) {
-        if (tl.getTileAt(x, y) != null) {
-          const pos = tl.getPositionAt(x, y);
+        if (tl.getTileGIDAt(x, y) !== 0) {
           const bc = this.addComponent(cc.BoxCollider);
-          bc.offset = this.node.parent.convertToNodeSpaceAR(new cc.Vec2(pos.x + tileSize.width / 2, pos.y + tileSize.height / 2));
+          bc.offset = this.convertToPositionAR(new cc.Vec2(x, y));
           bc.size = new cc.Size(tileSize.width, tileSize.height);
         }
       }
     }
+  }
+
+  convertToPositionAR(tile: cc.Vec2): cc.Vec2 {
+    const tl = this.getComponent(cc.TiledLayer);
+    const size = tl.getLayerSize();
+    const tileSize = tl.getMapTileSize();
+    console.log(size, tileSize);
+    return new cc.Vec2(tileSize.width * (tile.x + 0.5 - size.width / 2), (size.height / 2 - tile.y - 0.5) * tileSize.height)
   }
 
   convertToTile(pos: cc.Vec2): cc.Vec2 {
