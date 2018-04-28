@@ -84,7 +84,6 @@ export default class Player extends cc.Component {
   command(idx: number) {
     if (this.isPlayer) {
       Global.Socket.emit('player move', { cardId: idx });
-      console.log("Player", { cardId: idx });
     }
     const card = Cards[idx];
     card.action(this);

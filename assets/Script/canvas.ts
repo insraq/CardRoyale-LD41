@@ -41,7 +41,7 @@ export default class Canvas extends cc.Component {
 
     this.overlay.zIndex = 1;
 
-    const socket = window.io('http://localhost:4000');
+    const socket = window.io('http://192.168.1.107:4000');
     Global.Socket = socket;
 
     socket.emit('new player');
@@ -60,7 +60,6 @@ export default class Canvas extends cc.Component {
       Global.PlayerScript.enemy = enemy;
 
       socket.on('player move sync', (data) => {
-        console.log('Enemy', data);
         enemy.getComponent(Player).command(data.cardId);
       });
 

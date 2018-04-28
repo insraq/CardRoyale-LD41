@@ -31,7 +31,7 @@ const Global: { PlayerNode: cc.Node, PlayerScript: Player, CanvasScript: Canvas,
   PlayerScript: null,
   CanvasScript: null,
   Pause: false,
-  TM: new TileMapCalc(new cc.Size(32, 32), new cc.Size(32, 18)),
+  TM: new TileMapCalc(new cc.Size(32, 32), new cc.Size(18, 32)),
   Socket: null
 };
 

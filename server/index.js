@@ -1,6 +1,6 @@
 var io = require('socket.io')(4000);
 
-var spawnLocations = [[7, 7], [27, 7]];
+var spawnLocations = [[8, 3], [8, 23]];
 var seq = 0;
 
 io.on('connection', function (socket) {

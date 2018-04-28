@@ -43,8 +43,8 @@
       false
     ]
   ],
-  "design-resolution-height": 576,
-  "design-resolution-width": 1024,
+  "design-resolution-height": 1024,
+  "design-resolution-width": 576,
   "excluded-modules": [],
   "fit-height": true,
   "fit-width": true,
