@@ -17,7 +17,6 @@ io.on('connection', function (socket) {
   });
 
   socket.on('player move', function (data) {
-    console.log(data);
     socket.broadcast.emit('player move sync', data);
   });
 
