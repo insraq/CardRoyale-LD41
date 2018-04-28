@@ -1,51 +1,40 @@
 import Bullet from './bullet';
 import { Global } from './global';
+import { CardDeck, Cards } from './card';
+import AddCollider from './add_collider';
 const { ccclass, property } = cc._decorator;
 
 @ccclass
 export default class Player extends cc.Component {
 
-  @property(cc.Node)
-  private enemy: cc.Node = null;
-
   @property(cc.Prefab)
   private bulletPrefab: cc.Prefab = null;
 
   @property(cc.ProgressBar)
-  private progressBar: cc.ProgressBar = null;
-
-  @property(cc.ProgressBar)
   private heathProgressBar: cc.ProgressBar = null;
 
-  @property(cc.Label)
-  private elixirValue: cc.Label = null;
-
-  @property(cc.Label)
-  private bulletValue: cc.Label = null;
-
-  @property(cc.Label)
-  private healthValue: cc.Label = null;
+  @property(cc.SpriteFrame)
+  private enemySpriteFrame: cc.SpriteFrame = null;
 
   private _bullet: number;
-  private MAX_HEALTH: number = 5;
   public get bullet(): number { return this._bullet; }
   public set bullet(v: number) {
     this._bullet = v;
-    this.bulletValue.string = v.toString();
   }
 
+  static MAX_ELIXIR = 10;
+  static MAX_HEALTH: number = 5;
+  public enemy: cc.Node = null;
   private _health: number;
+  public isPlayer = false;
   public get health(): number { return this._health; }
   public set health(v: number) {
-    if (v > this.MAX_HEALTH) {
+    if (v > Player.MAX_HEALTH) {
       return;
     }
     if (v == this._health - 1) {
-      this.node.runAction(cc.sequence(
-        cc.blink(1, 5),
-        cc.show()
-      ));
-      this.playSound("hurt");
+      this.node.runAction(cc.sequence(cc.blink(1, 5), cc.fadeIn(0.25)));
+      this.playSound(this.isPlayer ? "hurt" : "hit");
     }
     if (v > this._health) {
       this.node.runAction(cc.sequence(
@@ -54,35 +43,32 @@ export default class Player extends cc.Component {
       ))
     }
     if (v <= 0) {
-      Global.CanvasScript.gameOver("You Lost!");
+      Global.CanvasScript.gameOver(this.isPlayer ? "You Lost!" : "You Won!");
       return;
     }
-    this.heathProgressBar.progress = v / this.MAX_HEALTH;
+    this.heathProgressBar.progress = v / Player.MAX_HEALTH;
     this._health = v;
-    this.healthValue.string = v.toString();
   }
 
   private _elixir: number = 5;
   public get elixir(): number { return this._elixir; }
   public set elixir(v: number) {
     this._elixir = v;
-    this.elixirValue.string = Math.floor(v).toString();
-    this.progressBar.progress = v / this.MAX_ELIXIR;
   }
 
   private size: number;
-  private readonly MAX_ELIXIR = 10;
   private _overlap = {};
   private _moveQueue: string[] = [];
   private _moving = false;
 
   onLoad() {
     this.size = this.node.getContentSize().width;
-    Global.PlayerNode = this.node;
-    Global.PlayerScript = this;
-    this.health = this.MAX_HEALTH;
+    this.health = Player.MAX_HEALTH;
     this.bullet = 5;
     this.health = 5;
+    if (!this.isPlayer) {
+      this.getComponent(cc.Sprite).spriteFrame = this.enemySpriteFrame;
+    }
   }
 
   playSound(name: string) {
@@ -95,22 +81,27 @@ export default class Player extends cc.Component {
     }
   }
 
+  command(idx: number) {
+    if (this.isPlayer) {
+      Global.Socket.emit('player move', { cardId: idx });
+      console.log("Player", { cardId: idx });
+    }
+    const card = Cards[idx];
+    card.action(this);
+  }
+
   move(direction: ("up" | "down" | "right" | "left")) {
     this._moveQueue.push(direction);
   }
 
   update(dt) {
-
     if (Global.Pause) return;
-
-    if (this.elixir <= this.MAX_ELIXIR) {
+    if (this.elixir <= Player.MAX_ELIXIR) {
       this.elixir += 0.5 * dt;
     }
-
     if (!this._moving && this._moveQueue.length > 0) {
       this._processMove();
     }
-
   }
 
   private _processMove() {
@@ -118,24 +109,25 @@ export default class Player extends cc.Component {
 
     const pos = this.node.position;
     const direction = this._moveQueue.shift();
+    const tile = Global.TM.positionToTile(this.node.parent.convertToWorldSpaceAR(this.node.position));
     let target;
     switch (direction) {
       case "up":
-        target = new cc.Vec2(pos.x, pos.y + this.size);
+        target = new cc.Vec2(tile.x, tile.y - 1);
         break;
       case "down":
-        target = new cc.Vec2(pos.x, pos.y - this.size);
+        target = new cc.Vec2(tile.x, tile.y + 1);
         break;
       case "right":
-        target = new cc.Vec2(pos.x + this.size, pos.y);
+        target = new cc.Vec2(tile.x + 1, tile.y);
         break;
       case "left":
-        target = new cc.Vec2(pos.x - this.size, pos.y);
+        target = new cc.Vec2(tile.x - 1, tile.y);
         break;
     }
     if (target && !this._overlap[target.toString()]) {
       this.node.runAction(cc.sequence(
-        cc.moveTo(0.25, target),
+        cc.moveTo(0.25, Global.TM.tileToPositionAR(target)),
         cc.callFunc(() => {
           this._moving = false;
         })
@@ -156,19 +148,19 @@ export default class Player extends cc.Component {
   }
 
   onCollisionEnter(other, self) {
-    const aabb = other.world.aabb;
-    const pos = this.node.parent.convertToNodeSpaceAR(
-      new cc.Vec2(aabb.x + aabb.width / 2, aabb.y + aabb.width / 2)
-    );
-    this._overlap[pos.toString()] = true;
+    if ((<cc.Collider>other).getComponent(AddCollider)) {
+      const aabb = other.world.aabb;
+      const tile = Global.TM.positionToTile(new cc.Vec2(aabb.x, aabb.y));
+      this._overlap[tile.toString()] = true;
+    }
   }
 
   onCollisionExit(other, self) {
-    const aabb = other.world.aabb;
-    const pos = this.node.parent.convertToNodeSpaceAR(
-      new cc.Vec2(aabb.x + aabb.width / 2, aabb.y + aabb.width / 2)
-    );
-    this._overlap[pos.toString()] = null;
+    if ((<cc.Collider>other).getComponent(AddCollider)) {
+      const aabb = other.world.aabb;
+      const tile = Global.TM.positionToTile(new cc.Vec2(aabb.x, aabb.y));
+      delete this._overlap[tile.toString()];
+    }
   }
 
 }

@@ -1,6 +1,7 @@
 import Enemy from "./enemy";
 import Player from "./player";
 import AddCollider from "./add_collider";
+import { Global } from "./global";
 
 const { ccclass, property } = cc._decorator;
 
@@ -38,12 +39,13 @@ export default class Bullet extends cc.Component {
     if (this.from == other.node) {
       return;
     }
-    if (!this.isValid) {
+    if (!cc.isValid(this.node)) {
       return;
     }
 
+    this.node.destroy();
     const c = other.getComponent(AddCollider);
-    if (c && !c.isEdge(other.offset)) {
+    if (c && !Global.TM.isEdge(other.offset)) {
       c.removeTileAtPosition(other.offset);
       other.destroy();
     }
@@ -55,7 +57,6 @@ export default class Bullet extends cc.Component {
     if (p) {
       p.health -= 1;
     }
-    this.node.destroy();
   }
 
 }

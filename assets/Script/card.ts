@@ -1,85 +1,83 @@
 import { Global } from "./global";
 import Player from "./player";
-
 const { ccclass, property } = cc._decorator;
 
-
-interface CardDeck {
+export interface CardDeck {
   cardName: string;
   elixir: number;
   bullet: number;
-  action: () => void;
+  action: (player: Player) => void;
 }
 
 const aimAndShoot: CardDeck = {
-  cardName: "Aim and Shoot".toUpperCase(), elixir: 3, bullet: 1, action: () => {
-    Global.PlayerScript.shoot();
+  cardName: "Aim and Shoot".toUpperCase(), elixir: 3, bullet: 1, action: (player) => {
+    player.shoot();
   }
 };
 
-const Cards: CardDeck[] = [
+export const Cards: CardDeck[] = [
 
   aimAndShoot, aimAndShoot, aimAndShoot, aimAndShoot,
 
   {
-    cardName: "Up +1".toUpperCase(), elixir: 1, bullet: 0, action: () => {
-      Global.PlayerScript.move("up");
+    cardName: "Up +1".toUpperCase(), elixir: 1, bullet: 0, action: (player) => {
+      player.move("up");
     }
   },
   {
-    cardName: "Left +1".toUpperCase(), elixir: 1, bullet: 0, action: () => {
-      Global.PlayerScript.move("left");
+    cardName: "Left +1".toUpperCase(), elixir: 1, bullet: 0, action: (player) => {
+      player.move("left");
     }
   },
   {
-    cardName: "Right +1".toUpperCase(), elixir: 1, bullet: 0, action: () => {
-      Global.PlayerScript.move("right");
+    cardName: "Right +1".toUpperCase(), elixir: 1, bullet: 0, action: (player) => {
+      player.move("right");
     }
   },
   {
-    cardName: "Down +1".toUpperCase(), elixir: 1, bullet: 0, action: () => {
-      Global.PlayerScript.move("down");
-    }
-  },
-
-  {
-    cardName: "Up +3".toUpperCase(), elixir: 2, bullet: 0, action: () => {
-      Global.PlayerScript.move("up");
-      Global.PlayerScript.move("up");
-      Global.PlayerScript.move("up");
-    }
-  },
-  {
-    cardName: "Left +3".toUpperCase(), elixir: 2, bullet: 0, action: () => {
-      Global.PlayerScript.move("left");
-      Global.PlayerScript.move("left");
-      Global.PlayerScript.move("left");
-    }
-  },
-  {
-    cardName: "Right +3".toUpperCase(), elixir: 2, bullet: 0, action: () => {
-      Global.PlayerScript.move("right");
-      Global.PlayerScript.move("right");
-      Global.PlayerScript.move("right");
-    }
-  },
-  {
-    cardName: "Down +3".toUpperCase(), elixir: 2, bullet: 0, action: () => {
-      Global.PlayerScript.move("down");
-      Global.PlayerScript.move("down");
-      Global.PlayerScript.move("down");
+    cardName: "Down +1".toUpperCase(), elixir: 1, bullet: 0, action: (player) => {
+      player.move("down");
     }
   },
 
   {
-    cardName: "Bullet +2".toUpperCase(), elixir: 2, bullet: 0, action: () => {
-      Global.PlayerScript.bullet += 2;
+    cardName: "Up +3".toUpperCase(), elixir: 2, bullet: 0, action: (player) => {
+      player.move("up");
+      player.move("up");
+      player.move("up");
+    }
+  },
+  {
+    cardName: "Left +3".toUpperCase(), elixir: 2, bullet: 0, action: (player) => {
+      player.move("left");
+      player.move("left");
+      player.move("left");
+    }
+  },
+  {
+    cardName: "Right +3".toUpperCase(), elixir: 2, bullet: 0, action: (player) => {
+      player.move("right");
+      player.move("right");
+      player.move("right");
+    }
+  },
+  {
+    cardName: "Down +3".toUpperCase(), elixir: 2, bullet: 0, action: (player) => {
+      player.move("down");
+      player.move("down");
+      player.move("down");
     }
   },
 
   {
-    cardName: "Health +1".toUpperCase(), elixir: 2, bullet: 0, action: () => {
-      Global.PlayerScript.health += 1;
+    cardName: "Bullet +2".toUpperCase(), elixir: 2, bullet: 0, action: (player) => {
+      player.bullet += 2;
+    }
+  },
+
+  {
+    cardName: "Health +1".toUpperCase(), elixir: 2, bullet: 0, action: (player) => {
+      player.health += 1;
     }
   },
 ];
@@ -122,7 +120,8 @@ export default class Card extends cc.Component {
   onClick(e: cc.Event.EventMouse) {
     if (this._canBeUsed()) {
       Global.PlayerScript.elixir = Global.PlayerScript.elixir - this.currentCard().elixir;
-      this.currentCard().action();
+      const idx = Cards.indexOf(this.currentCard());
+      Global.PlayerScript.command(idx);
       this.node.runAction(cc.sequence(
         cc.spawn(
           cc.moveBy(0.25, 0, 300),
@@ -153,7 +152,7 @@ export default class Card extends cc.Component {
   }
 
   private _canBeUsed() {
-    return Global.PlayerScript.elixir >= this.currentCard().elixir;
+    return Global.PlayerScript && Global.PlayerScript.elixir >= this.currentCard().elixir;
   }
 
 }
