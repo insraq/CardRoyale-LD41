@@ -33,7 +33,7 @@ export default class Enemy extends cc.Component {
       ))
     }
     if (v <= 0) {
-      Global.CanvasScript.gameOver("You Won!");
+      Global.CanvasScript.showOverlay("You Won!");
       return;
     }
     this._health = v;

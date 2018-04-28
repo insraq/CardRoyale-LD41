@@ -15,7 +15,10 @@ export default class Canvas extends cc.Component {
   private overlay: cc.Node = null;
 
   @property(cc.Label)
-  private title: cc.Label = null;
+  private overlayTitle: cc.Label = null;
+
+  @property(cc.Node)
+  private overlayButton: cc.Node = null;
 
   @property(cc.ProgressBar)
   private elixirProgressBar: cc.ProgressBar = null;
@@ -45,15 +48,17 @@ export default class Canvas extends cc.Component {
     Global.Socket = socket;
 
     socket.emit('new player');
+    this.showOverlay("Finding Players", false);
     socket.on('spawn player', (data) => {
+      this.hideOverlay();
       Global.PlayerNode = cc.instantiate(this.playerPrefab);
       Global.PlayerScript = Global.PlayerNode.getComponent(Player);
-      Global.PlayerNode.position = Global.TM.tileToPositionAR(new cc.Vec2(data.player.x, data.player.y));
+      Global.PlayerNode.position = Global.TM.tileToPositionAR(new cc.Vec2(data.playerX, data.playerY));
       Global.PlayerScript.isPlayer = true;
       Global.PlayerNode.parent = this.node;
 
       const enemy = cc.instantiate(this.playerPrefab);
-      enemy.position = Global.TM.tileToPositionAR(new cc.Vec2(data.enemy.x, data.enemy.y));
+      enemy.position = Global.TM.tileToPositionAR(new cc.Vec2(data.enemyX, data.enemyY));
       enemy.parent = this.node;
 
       enemy.getComponent(Player).enemy = Global.PlayerNode;
@@ -61,6 +66,10 @@ export default class Canvas extends cc.Component {
 
       socket.on('player move sync', (data) => {
         enemy.getComponent(Player).command(data.cardId);
+      });
+
+      socket.on('enemy left', () => {
+        this.showOverlay("You Won!\n(Enemy Left)");
       });
 
     });
@@ -75,10 +84,16 @@ export default class Canvas extends cc.Component {
     this.bulletValue.string = Global.PlayerScript.bullet.toString();
   }
 
-  gameOver(title: string): void {
+  showOverlay(title: string, showRestartButton: boolean = true): void {
     Global.Pause = true;
     this.overlay.active = true;
-    this.title.string = title;
+    this.overlayTitle.string = title;
+    this.overlayButton.active = showRestartButton;
+  }
+
+  hideOverlay(): void {
+    Global.Pause = false;
+    this.overlay.active = false;
   }
 
   restart() {

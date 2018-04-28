@@ -43,7 +43,7 @@ export default class Player extends cc.Component {
       ))
     }
     if (v <= 0) {
-      Global.CanvasScript.gameOver(this.isPlayer ? "You Lost!" : "You Won!");
+      Global.CanvasScript.showOverlay(this.isPlayer ? "You Lost!" : "You Won!");
       return;
     }
     this.heathProgressBar.progress = v / Player.MAX_HEALTH;

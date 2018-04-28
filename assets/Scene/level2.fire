@@ -1974,8 +1974,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 1025,
-      "height": 576
+      "width": 576,
+      "height": 1024
     },
     "_rotationX": 0,
     "_rotationY": 0,
@@ -2026,7 +2026,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 360,
+      "width": 450,
       "height": 40
     },
     "_rotationX": 0,
@@ -2054,8 +2054,8 @@
     },
     "_enabled": true,
     "_useOriginalSize": false,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 30,
+    "_fontSize": 30,
     "_lineHeight": 40,
     "_enableWrapText": true,
     "_N$file": {
@@ -2067,7 +2067,7 @@
     "_N$horizontalAlign": 1,
     "_N$verticalAlign": 1,
     "_N$fontFamily": "Arial",
-    "_N$overflow": 0
+    "_N$overflow": 3
   },
   {
     "__type__": "cc.Node",
@@ -2266,8 +2266,11 @@
     "overlay": {
       "__id__": 61
     },
-    "title": {
+    "overlayTitle": {
       "__id__": 63
+    },
+    "overlayButton": {
+      "__id__": 64
     },
     "elixirProgressBar": {
       "__id__": 50
