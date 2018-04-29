@@ -49,8 +49,14 @@ export default class Canvas extends cc.Component {
 
     socket.emit('new player');
     this.showOverlay("Finding Players", false);
+    const action = this.overlayTitle.node.runAction(cc.repeatForever(cc.sequence(
+      cc.fadeOut(0.5),
+      cc.fadeIn(0.5),
+      cc.delayTime(0.5),
+    )));
     socket.on('spawn player', (data) => {
       this.hideOverlay();
+      this.overlayTitle.node.stopAction(action);
       Global.PlayerNode = cc.instantiate(this.playerPrefab);
       Global.PlayerScript = Global.PlayerNode.getComponent(Player);
       Global.PlayerNode.position = Global.TM.tileToPositionAR(new cc.Vec2(data.playerX, data.playerY));

@@ -13,7 +13,7 @@ io.on('connection', function (socket) {
     var roomId = 'room ' + seq;
 
     if (currentOpenRoom) {
-      currentOpenRoom = false;
+      currentOpenRoom = null;
       socket.join(roomId);
       console.log('player ' + socket.id + ' joined ' + roomId + ' (start the game)');
       roomMapping[socket.id] = roomId;
@@ -35,7 +35,7 @@ io.on('connection', function (socket) {
 
       seq++;
     } else {
-      currentOpenRoom = true;
+      currentOpenRoom = socket.id;
       socket.join(roomId);
       console.log('player ' + socket.id + ' joined ' + roomId + ' (waiting for opponent)');
       roomMapping[socket.id] = roomId;
@@ -49,6 +49,9 @@ io.on('connection', function (socket) {
 
   socket.on('disconnect', () => {
     var roomId = roomMapping[socket.id];
+    if (socket.id === currentOpenRoom) {
+      currentOpenRoom = null;
+    }
     socket.to(roomId).emit('enemy left');
     delete roomMapping[socket.id];
     console.log('player ' + socket.id + ' left ' + roomId + ', # players = ' + Object.keys(roomMapping).length);

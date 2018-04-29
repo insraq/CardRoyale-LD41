@@ -121,6 +121,7 @@ export default class Card extends cc.Component {
     if (this._canBeUsed()) {
       Global.PlayerScript.elixir = Global.PlayerScript.elixir - this.currentCard().elixir;
       const idx = Cards.indexOf(this.currentCard());
+      Global.Socket.emit('player move', { cardId: idx });
       Global.PlayerScript.command(idx);
       this.node.runAction(cc.sequence(
         cc.spawn(
