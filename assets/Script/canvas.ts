@@ -44,7 +44,7 @@ export default class Canvas extends cc.Component {
 
     this.overlay.zIndex = 1;
 
-    const socket = window.io('http://192.168.1.107:4000');
+    const socket = window.io('http://192.168.1.106:4000');
     Global.Socket = socket;
 
     socket.emit('new player');

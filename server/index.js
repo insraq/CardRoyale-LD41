@@ -1,10 +1,10 @@
 var io = require('socket.io')(4000);
-
 var spawnLocations = [[8, 3], [8, 23]];
 var seq = 0;
-
 var roomMapping = {};
 var currentOpenRoom = false;
+
+console.log("Socket IO running on 4000");
 
 io.on('connection', function (socket) {
 
