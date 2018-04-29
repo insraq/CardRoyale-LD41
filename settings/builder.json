@@ -14,20 +14,20 @@
   "oauthLoginServer": "",
   "optimizeHotUpdate": false,
   "orientation": {
-    "landscapeLeft": true,
-    "landscapeRight": true,
-    "portrait": false,
-    "upsideDown": false
+    "landscapeLeft": false,
+    "landscapeRight": false,
+    "portrait": true,
+    "upsideDown": true
   },
-  "packageName": "org.cocos2d.helloworld",
+  "packageName": "com.ruoyusun.cardroyale",
   "privateKey": "",
   "qqplay": {
     "orientation": "portrait"
   },
   "renderMode": "0",
-  "startScene": "2d2f792f-a40c-49bb-a189-ed176a246e49",
+  "startScene": "0f1e0249-837e-4314-964b-a88650152952",
   "title": "CardRoyale",
-  "webOrientation": "landscape",
+  "webOrientation": "portrait",
   "wechatgame": {
     "appid": "wx6ac3f5090a6b99c5",
     "orientation": "portrait"

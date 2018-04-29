@@ -45,7 +45,16 @@
   ],
   "design-resolution-height": 1024,
   "design-resolution-width": 576,
-  "excluded-modules": [],
+  "excluded-modules": [
+    "Spine Skeleton",
+    "EditorBox",
+    "MotionStreak",
+    "DragonBones",
+    "Physics",
+    "StudioComponent",
+    "Chipmunk",
+    "Native NetWork"
+  ],
   "fit-height": true,
   "fit-width": true,
   "group-list": [
@@ -61,6 +70,5 @@
     "width": 960
   },
   "use-customize-simulator": false,
-  "use-project-simulator-setting": false,
-  "start-scene": "current"
+  "use-project-simulator-setting": false
 }
