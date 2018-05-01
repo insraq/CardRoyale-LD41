@@ -1,13 +1,13 @@
-import { Global } from "./global";
+import { GLOBAL } from "./global";
 
 const { ccclass, property } = cc._decorator;
 
 @ccclass
 export default class AddCollider extends cc.Component {
 
-  tl: cc.TiledLayer
+  public tl: cc.TiledLayer;
 
-  onLoad() {
+  public onLoad() {
     this.tl = this.getComponent(cc.TiledLayer);
     const size = this.tl.getLayerSize();
     const tileSize = this.tl.getMapTileSize();
@@ -15,15 +15,15 @@ export default class AddCollider extends cc.Component {
       for (let y = 0; y < size.height; y++) {
         if (this.tl.getTileGIDAt(x, y) !== 0) {
           const bc = this.addComponent(cc.BoxCollider);
-          bc.offset = Global.TM.tileToPositionAR(new cc.Vec2(x, y));
+          bc.offset = GLOBAL.TM.tileToPositionAR(new cc.Vec2(x, y));
           bc.size = new cc.Size(tileSize.width, tileSize.height);
         }
       }
     }
   }
 
-  removeTileAtPosition(pos: cc.Vec2): void {
-    this.tl.removeTileAt(Global.TM.positionToTile(this.node.parent.convertToWorldSpaceAR(pos)));
+  public removeTileAtPosition(pos: cc.Vec2): void {
+    this.tl.removeTileAt(GLOBAL.TM.positionToTile(this.node.parent.convertToWorldSpaceAR(pos)));
   }
 
 }

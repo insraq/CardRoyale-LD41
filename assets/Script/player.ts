@@ -1,7 +1,7 @@
 import AddCollider from "./add_collider";
 import Bullet from "./bullet";
-import { CardDeck, CARDS } from "./card";
-import { Global } from "./global";
+import { CARDS, ICardDeck } from "./card";
+import { GLOBAL } from "./global";
 const { ccclass, property } = cc._decorator;
 
 @ccclass
@@ -32,7 +32,7 @@ export default class Player extends cc.Component {
       ));
     }
     if (v <= 0) {
-      Global.CanvasScript.showOverlay(this.isPlayer ? "You Lost!" : "You Won!");
+      GLOBAL.CanvasScript.showOverlay(this.isPlayer ? "You Lost!" : "You Won!");
       return;
     }
     this.heathProgressBar.progress = v / Player.MAX_HEALTH;
@@ -87,7 +87,7 @@ export default class Player extends cc.Component {
   }
 
   public update(dt) {
-    if (Global.Pause) { return; }
+    if (GLOBAL.Pause) { return; }
     if (this.elixir <= Player.MAX_ELIXIR) {
       this.elixir += 0.5 * dt;
     }
@@ -109,7 +109,7 @@ export default class Player extends cc.Component {
   public onCollisionEnter(other, self) {
     if ((other as cc.Collider).getComponent(AddCollider)) {
       const aabb = other.world.aabb;
-      const tile = Global.TM.positionToTile(new cc.Vec2(aabb.x, aabb.y));
+      const tile = GLOBAL.TM.positionToTile(new cc.Vec2(aabb.x, aabb.y));
       this._overlap[tile.toString()] = true;
     }
   }
@@ -117,7 +117,7 @@ export default class Player extends cc.Component {
   public onCollisionExit(other, self) {
     if ((other as cc.Collider).getComponent(AddCollider)) {
       const aabb = other.world.aabb;
-      const tile = Global.TM.positionToTile(new cc.Vec2(aabb.x, aabb.y));
+      const tile = GLOBAL.TM.positionToTile(new cc.Vec2(aabb.x, aabb.y));
       delete this._overlap[tile.toString()];
     }
   }
@@ -127,7 +127,7 @@ export default class Player extends cc.Component {
 
     const pos = this.node.position;
     const direction = this._moveQueue.shift();
-    const tile = Global.TM.positionToTile(this.node.parent.convertToWorldSpaceAR(this.node.position));
+    const tile = GLOBAL.TM.positionToTile(this.node.parent.convertToWorldSpaceAR(this.node.position));
     let target;
     switch (direction) {
       case "up":
@@ -145,7 +145,7 @@ export default class Player extends cc.Component {
     }
     if (target && !this._overlap[target.toString()]) {
       this.node.runAction(cc.sequence(
-        cc.moveTo(0.25, Global.TM.tileToPositionAR(target)),
+        cc.moveTo(0.25, GLOBAL.TM.tileToPositionAR(target)),
         cc.callFunc(() => {
           this._moving = false;
         }),

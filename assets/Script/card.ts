@@ -1,21 +1,21 @@
-import { Global } from "./global";
+import { GLOBAL } from "./global";
 import Player from "./player";
 const { ccclass, property } = cc._decorator;
 
-export interface CardDeck {
+export interface ICardDeck {
   cardName: string;
   elixir: number;
   bullet: number;
   action: (player: Player) => void;
 }
 
-const aimAndShoot: CardDeck = {
+const aimAndShoot: ICardDeck = {
   cardName: "Aim and Shoot".toUpperCase(), elixir: 3, bullet: 1, action: (player) => {
     player.shoot();
   },
 };
 
-export const CARDS: CardDeck[] = [
+export const CARDS: ICardDeck[] = [
 
   aimAndShoot, aimAndShoot, aimAndShoot, aimAndShoot,
 
@@ -97,7 +97,7 @@ export default class Card extends cc.Component {
   private _initialPosition: cc.Vec2;
   private _initialNameColor: cc.Color;
   private _initialElixirColor: cc.Color;
-  private _currentCard: CardDeck;
+  private _currentCard: ICardDeck;
 
   public onLoad() {
     this._initialPosition = this.node.position;
@@ -108,10 +108,10 @@ export default class Card extends cc.Component {
 
   public onClick(e: cc.Event.EventMouse) {
     if (this._canBeUsed()) {
-      Global.PlayerScript.elixir = Global.PlayerScript.elixir - this.currentCard().elixir;
+      GLOBAL.PlayerScript.elixir = GLOBAL.PlayerScript.elixir - this.currentCard().elixir;
       const idx = CARDS.indexOf(this.currentCard());
-      Global.Socket.emit("player move", { cardId: idx });
-      Global.PlayerScript.command(idx);
+      GLOBAL.Socket.emit("player move", { cardId: idx });
+      GLOBAL.PlayerScript.command(idx);
       this.node.runAction(cc.sequence(
         cc.spawn(
           cc.moveBy(0.25, 0, 300),
@@ -142,7 +142,7 @@ export default class Card extends cc.Component {
   }
 
   private _canBeUsed() {
-    return Global.PlayerScript && Global.PlayerScript.elixir >= this.currentCard().elixir;
+    return GLOBAL.PlayerScript && GLOBAL.PlayerScript.elixir >= this.currentCard().elixir;
   }
 
   private drawCard() {
