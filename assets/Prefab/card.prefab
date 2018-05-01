@@ -75,7 +75,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "cardName",
+    "_name": "card_name",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1

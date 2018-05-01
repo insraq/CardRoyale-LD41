@@ -1,10 +1,11 @@
 import { Global } from "./global";
 import Player from "./player";
+
 const { ccclass, property } = cc._decorator;
 
 declare global {
-  interface Window {
-    io: Function;
+  interface Window { // tslint:disable-line
+    io: SocketIOClientStatic;
   }
 }
 
@@ -14,11 +15,17 @@ export default class Canvas extends cc.Component {
   @property(cc.Node)
   private overlay: cc.Node = null;
 
-  @property(cc.Label)
-  private overlayTitle: cc.Label = null;
+  @property(cc.Node)
+  private mainUI: cc.Node = null;
 
   @property(cc.Node)
-  private overlayButton: cc.Node = null;
+  private mainUILoading: cc.Node = null;
+
+  @property(cc.Node)
+  private mainUIButtons: cc.Node = null;
+
+  @property(cc.Label)
+  private overlayTitle: cc.Label = null;
 
   @property(cc.ProgressBar)
   private elixirProgressBar: cc.ProgressBar = null;
@@ -35,7 +42,7 @@ export default class Canvas extends cc.Component {
   @property(cc.Prefab)
   private playerPrefab: cc.Prefab = null;
 
-  onLoad() {
+  public onLoad() {
     cc.view.enableAntiAlias(false);
     cc.director.getCollisionManager().enabled = true;
 
@@ -43,22 +50,12 @@ export default class Canvas extends cc.Component {
     // cc.director.getCollisionManager().enabledDebugDraw = true;
 
     this.overlay.zIndex = 1;
+    this.mainUI.zIndex = 1;
 
-    const socket = window.io('http://192.168.1.106:4000');
+    const socket = window.io("http://insraq.dy.fi:4000");
     Global.Socket = socket;
 
-    socket.emit('new player');
-
-    this.showOverlay("Finding Players", false);
-    const action = this.overlayTitle.node.runAction(cc.repeatForever(cc.sequence(
-      cc.fadeOut(0.5),
-      cc.fadeIn(0.5),
-      cc.delayTime(0.5),
-    )));
-    socket.on('spawn player', (data) => {
-      this.hideOverlay();
-      this.overlayTitle.node.stopAction(action);
-      this.overlayTitle.node.runAction(cc.fadeIn(0.25));
+    socket.on("spawn player", (data) => {
       Global.PlayerNode = cc.instantiate(this.playerPrefab);
       Global.PlayerScript = Global.PlayerNode.getComponent(Player);
       Global.PlayerNode.position = Global.TM.tileToPositionAR(new cc.Vec2(data.playerX, data.playerY));
@@ -72,39 +69,45 @@ export default class Canvas extends cc.Component {
       enemy.getComponent(Player).enemy = Global.PlayerNode;
       Global.PlayerScript.enemy = enemy;
 
-      socket.on('player move sync', (data) => {
+      this.mainUI.active = false;
+
+      socket.on("player move sync", (data) => {
         enemy.getComponent(Player).command(data.cardId);
       });
 
-      socket.on('enemy left', () => {
+      socket.on("enemy left", () => {
         this.showOverlay("You Won!\n(Enemy Left)");
       });
-
     });
 
   }
 
-  update(dt) {
-    if (!Global.PlayerNode) return;
+  public multiplayer() {
+    this.mainUILoading.active = true;
+    this.mainUIButtons.active = false;
+    Global.Socket.emit("new player");
+  }
+
+  public update(dt) {
+    if (!Global.PlayerNode) { return; }
     this.elixirProgressBar.progress = Global.PlayerScript.elixir / Player.MAX_ELIXIR;
     this.elixirValue.string = Math.floor(Global.PlayerScript.elixir).toString();
     this.healthValue.string = Global.PlayerScript.health.toString();
     this.bulletValue.string = Global.PlayerScript.bullet.toString();
   }
 
-  showOverlay(title: string, showRestartButton: boolean = true): void {
+  public showOverlay(title: string): void {
     Global.Pause = true;
     this.overlay.active = true;
     this.overlayTitle.string = title;
-    this.overlayButton.active = showRestartButton;
   }
 
-  hideOverlay(): void {
+  public hideOverlay(): void {
     Global.Pause = false;
     this.overlay.active = false;
   }
 
-  restart() {
+  public restart() {
     Global.Pause = false;
     cc.director.loadScene(cc.director.getScene().name);
   }

@@ -1,7 +1,7 @@
-import Enemy from "./enemy";
-import Player from "./player";
 import AddCollider from "./add_collider";
+import Enemy from "./enemy";
 import { Global } from "./global";
+import Player from "./player";
 
 const { ccclass, property } = cc._decorator;
 
@@ -14,13 +14,13 @@ export default class Bullet extends cc.Component {
   private readonly SPEED = 800;
   private direction: cc.Vec2;
 
-  onLoad() {
+  public onLoad() {
     if (this.target) {
       this.direction = this.target.sub(this.node.position).normalize();
     }
   }
 
-  update(dt) {
+  public update(dt) {
     const s = cc.director.getVisibleSize();
     const pos = this.node.position;
     if (pos.x > s.width / 2 || pos.x < -s.width / 2 || pos.y > s.height / 2 || pos.y < -s.height / 2) {
@@ -31,12 +31,12 @@ export default class Bullet extends cc.Component {
     }
   }
 
-  onCollisionEnter(other: cc.BoxCollider, self: cc.BoxCollider) {
+  public onCollisionEnter(other: cc.BoxCollider, self: cc.BoxCollider) {
 
     if (other.tag !== 0) {
       return;
     }
-    if (this.from == other.node) {
+    if (this.from === other.node) {
       return;
     }
     if (!cc.isValid(this.node)) {

@@ -26,7 +26,16 @@ export class TileMapCalc {
 
 }
 
-const Global: { PlayerNode: cc.Node, PlayerScript: Player, CanvasScript: Canvas, Pause: boolean, TM: TileMapCalc, Socket: any } = {
+interface IGlobal {
+  PlayerNode: cc.Node;
+  PlayerScript: Player;
+  CanvasScript: Canvas;
+  Pause: boolean;
+  TM: TileMapCalc;
+  Socket: SocketIOClient.Socket;
+}
+
+const Global: IGlobal = {
   PlayerNode: null,
   PlayerScript: null,
   CanvasScript: null,
