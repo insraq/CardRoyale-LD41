@@ -65,6 +65,15 @@ export default class Player extends cc.Component {
     if (!this.isPlayer) {
       this.getComponent(cc.Sprite).spriteFrame = this.enemySpriteFrame;
     }
+    if (this.isPlayer && cc.director.getCollisionManager().enabledDebugDraw) {
+      cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
+    }
+  }
+
+  public onDestroy() {
+    if (this.isPlayer && cc.director.getCollisionManager().enabledDebugDraw) {
+      cc.systemEvent.off(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
+    }
   }
 
   public playSound(name: string) {
@@ -91,9 +100,7 @@ export default class Player extends cc.Component {
     if (this.elixir <= Player.MAX_ELIXIR) {
       this.elixir += 0.5 * dt;
     }
-    if (!this._moving && this._moveQueue.length > 0) {
-      this._processMove();
-    }
+    this._processMove();
   }
 
   public shoot() {
@@ -107,7 +114,7 @@ export default class Player extends cc.Component {
   }
 
   public onCollisionEnter(other, self) {
-    if ((other as cc.Collider).getComponent(AddCollider)) {
+    if (self.tag === 1 && other.getComponent(AddCollider)) {
       const aabb = other.world.aabb;
       const tile = GLOBAL.TM.positionToTile(new cc.Vec2(aabb.x, aabb.y));
       this._overlap[tile.toString()] = true;
@@ -115,16 +122,39 @@ export default class Player extends cc.Component {
   }
 
   public onCollisionExit(other, self) {
-    if ((other as cc.Collider).getComponent(AddCollider)) {
+    if (self.tag === 1 && other.getComponent(AddCollider)) {
       const aabb = other.world.aabb;
       const tile = GLOBAL.TM.positionToTile(new cc.Vec2(aabb.x, aabb.y));
       delete this._overlap[tile.toString()];
     }
   }
 
-  private _processMove() {
-    this._moving = true;
+  private onKeyDown(event) {
+    switch (event.keyCode) {
+      case cc.KEY.w:
+        this.move("up");
+        break;
+      case cc.KEY.a:
+        this.move("left");
+        break;
+      case cc.KEY.s:
+        this.move("down");
+        break;
+      case cc.KEY.d:
+        this.move("right");
+        break;
+      case cc.KEY.space:
+        this.shoot();
+        break;
+    }
+  }
 
+  private _processMove() {
+    if (this._moving || this._moveQueue.length === 0) {
+      return;
+    }
+
+    this._moving = true;
     const pos = this.node.position;
     const direction = this._moveQueue.shift();
     const tile = GLOBAL.TM.positionToTile(this.node.parent.convertToWorldSpaceAR(this.node.position));

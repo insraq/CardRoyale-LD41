@@ -17,6 +17,15 @@ export default class AddCollider extends cc.Component {
           const bc = this.addComponent(cc.BoxCollider);
           bc.offset = GLOBAL.TM.tileToPositionAR(new cc.Vec2(x, y));
           bc.size = new cc.Size(tileSize.width, tileSize.height);
+          if (cc.director.getCollisionManager().enabledDebugDraw) {
+            const node = new cc.Node();
+            const l = node.addComponent(cc.Label);
+            l.string = x + "," + y;
+            l.fontSize = 10;
+            node.parent = cc.find("canvas");
+            node.position = bc.offset.add(new cc.Vec2(0, -16));
+            node.zIndex = 1;
+          }
         }
       }
     }

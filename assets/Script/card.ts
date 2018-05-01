@@ -103,6 +103,7 @@ export default class Card extends cc.Component {
     this._initialPosition = this.node.position;
     this._initialElixirColor = this.elixir.node.color;
     this._initialNameColor = this.cardName.node.color;
+    GLOBAL.Cards.push(this);
     this.drawCard();
   }
 
@@ -110,7 +111,7 @@ export default class Card extends cc.Component {
     if (this._canBeUsed()) {
       GLOBAL.PlayerScript.elixir = GLOBAL.PlayerScript.elixir - this.currentCard().elixir;
       const idx = CARDS.indexOf(this.currentCard());
-      GLOBAL.Socket.emit("player move", { cardId: idx });
+      if (GLOBAL.Socket) { GLOBAL.Socket.emit("player move", { cardId: idx }); }
       GLOBAL.PlayerScript.command(idx);
       this.node.runAction(cc.sequence(
         cc.spawn(

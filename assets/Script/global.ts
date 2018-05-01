@@ -1,4 +1,5 @@
 import Canvas from "./canvas";
+import Card from "./card";
 import Player from "./player";
 
 export class TileMapCalc {
@@ -39,6 +40,7 @@ interface IGlobal {
   Pause: boolean;
   TM: TileMapCalc;
   Socket: SocketIOClient.Socket;
+  Cards: Card[];
 }
 
 const GLOBAL: IGlobal = {
@@ -48,6 +50,7 @@ const GLOBAL: IGlobal = {
   Pause: false,
   TM: new TileMapCalc(new cc.Size(32, 32), new cc.Size(18, 32)),
   Socket: null,
+  Cards: [],
 };
 
 export { GLOBAL };
