@@ -6,11 +6,12 @@ export interface ICardDeck {
   cardName: string;
   elixir: number;
   bullet: number;
+  type: "up" | "left" | "right" | "down" | "shoot" | "bullet" | "health";
   action: (player: Player) => void;
 }
 
 const aimAndShoot: ICardDeck = {
-  cardName: "Aim and Shoot".toUpperCase(), elixir: 3, bullet: 1, action: (player) => {
+  cardName: "Aim and Shoot".toUpperCase(), elixir: 3, bullet: 1, type: "shoot", action: (player) => {
     player.shoot();
   },
 };
@@ -20,49 +21,49 @@ export const CARDS: ICardDeck[] = [
   aimAndShoot, aimAndShoot, aimAndShoot, aimAndShoot,
 
   {
-    cardName: "Up +1".toUpperCase(), elixir: 1, bullet: 0, action: (player) => {
+    cardName: "Up +1".toUpperCase(), elixir: 1, bullet: 0, type: "up", action: (player) => {
       player.move("up");
     },
   },
   {
-    cardName: "Left +1".toUpperCase(), elixir: 1, bullet: 0, action: (player) => {
+    cardName: "Left +1".toUpperCase(), elixir: 1, bullet: 0, type: "left", action: (player) => {
       player.move("left");
     },
   },
   {
-    cardName: "Right +1".toUpperCase(), elixir: 1, bullet: 0, action: (player) => {
+    cardName: "Right +1".toUpperCase(), elixir: 1, bullet: 0, type: "right", action: (player) => {
       player.move("right");
     },
   },
   {
-    cardName: "Down +1".toUpperCase(), elixir: 1, bullet: 0, action: (player) => {
+    cardName: "Down +1".toUpperCase(), elixir: 1, bullet: 0, type: "down", action: (player) => {
       player.move("down");
     },
   },
 
   {
-    cardName: "Up +3".toUpperCase(), elixir: 2, bullet: 0, action: (player) => {
+    cardName: "Up +3".toUpperCase(), elixir: 2, bullet: 0, type: "up", action: (player) => {
       player.move("up");
       player.move("up");
       player.move("up");
     },
   },
   {
-    cardName: "Left +3".toUpperCase(), elixir: 2, bullet: 0, action: (player) => {
+    cardName: "Left +3".toUpperCase(), elixir: 2, bullet: 0, type: "left", action: (player) => {
       player.move("left");
       player.move("left");
       player.move("left");
     },
   },
   {
-    cardName: "Right +3".toUpperCase(), elixir: 2, bullet: 0, action: (player) => {
+    cardName: "Right +3".toUpperCase(), elixir: 2, bullet: 0, type: "right", action: (player) => {
       player.move("right");
       player.move("right");
       player.move("right");
     },
   },
   {
-    cardName: "Down +3".toUpperCase(), elixir: 2, bullet: 0, action: (player) => {
+    cardName: "Down +3".toUpperCase(), elixir: 2, bullet: 0, type: "down", action: (player) => {
       player.move("down");
       player.move("down");
       player.move("down");
@@ -70,13 +71,13 @@ export const CARDS: ICardDeck[] = [
   },
 
   {
-    cardName: "Bullet +2".toUpperCase(), elixir: 2, bullet: 0, action: (player) => {
+    cardName: "Bullet +2".toUpperCase(), elixir: 2, bullet: 0, type: "bullet", action: (player) => {
       player.bullet += 2;
     },
   },
 
   {
-    cardName: "Health +1".toUpperCase(), elixir: 2, bullet: 0, action: (player) => {
+    cardName: "Health +1".toUpperCase(), elixir: 2, bullet: 0, type: "health", action: (player) => {
       player.health += 1;
     },
   },
@@ -103,7 +104,7 @@ export default class Card extends cc.Component {
     this._initialPosition = this.node.position;
     this._initialElixirColor = this.elixir.node.color;
     this._initialNameColor = this.cardName.node.color;
-    GLOBAL.Cards.push(this);
+    GLOBAL.CardTypes = {};
     this.drawCard();
   }
 
@@ -113,6 +114,7 @@ export default class Card extends cc.Component {
       const idx = CARDS.indexOf(this.currentCard());
       if (GLOBAL.Socket) { GLOBAL.Socket.emit("player move", { cardId: idx }); }
       GLOBAL.PlayerScript.command(idx);
+      GLOBAL.CardTypes[this.currentCard().type]--;
       this.node.runAction(cc.sequence(
         cc.spawn(
           cc.moveBy(0.25, 0, 300),
@@ -143,14 +145,25 @@ export default class Card extends cc.Component {
   }
 
   private _canBeUsed() {
-    return GLOBAL.PlayerScript && GLOBAL.PlayerScript.elixir >= this.currentCard().elixir;
+    return GLOBAL.PlayerScript
+      && GLOBAL.PlayerScript.elixir >= this.currentCard().elixir
+      && GLOBAL.PlayerScript.bullet > this.currentCard().bullet;
   }
 
   private drawCard() {
-    _seq++;
-    this._currentCard = _cards[_seq % _cards.length];
-    this.cardName.string = this._currentCard.cardName;
-    this.elixir.string = this._currentCard.elixir.toString();
+    while (true) {
+      _seq++;
+      const draw = _cards[_seq % _cards.length];
+      if (!GLOBAL.CardTypes[draw.type]) {
+        this._currentCard = draw;
+        this.cardName.string = this._currentCard.cardName;
+        this.elixir.string = this._currentCard.elixir.toString();
+        GLOBAL.CardTypes[draw.type] = 1;
+        console.log("KEEY", draw.cardName);
+        return;
+      }
+      console.log("DROP", draw.cardName);
+    }
   }
 
   private currentCard() {

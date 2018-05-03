@@ -26,11 +26,6 @@ export class TileMapCalc {
     );
   }
 
-  public isEdge(pos: cc.Vec2): boolean {
-    const tile = this.positionToTile(pos);
-    return tile.x === 0 || tile.x === this.tileSize.width - 1 || tile.y === 0 || tile.y === this.tileSize.height - 1;
-  }
-
 }
 
 interface IGlobal {
@@ -40,7 +35,7 @@ interface IGlobal {
   Pause: boolean;
   TM: TileMapCalc;
   Socket: SocketIOClient.Socket;
-  Cards: Card[];
+  CardTypes: {};
 }
 
 const GLOBAL: IGlobal = {
@@ -50,7 +45,7 @@ const GLOBAL: IGlobal = {
   Pause: false,
   TM: new TileMapCalc(new cc.Size(32, 32), new cc.Size(18, 32)),
   Socket: null,
-  Cards: [],
+  CardTypes: {},
 };
 
 export { GLOBAL };

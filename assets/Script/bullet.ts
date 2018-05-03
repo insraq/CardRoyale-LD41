@@ -44,7 +44,7 @@ export default class Bullet extends cc.Component {
 
     this.node.destroy();
     const c = other.getComponent(AddCollider);
-    if (c && !GLOBAL.TM.isEdge(other.offset)) {
+    if (c) {
       c.removeTileAtPosition(other.offset);
       other.destroy();
     }
