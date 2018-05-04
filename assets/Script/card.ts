@@ -104,7 +104,6 @@ export default class Card extends cc.Component {
     this._initialPosition = this.node.position;
     this._initialElixirColor = this.elixir.node.color;
     this._initialNameColor = this.cardName.node.color;
-    GLOBAL.CardTypes = {};
     this.drawCard();
   }
 
@@ -160,9 +159,11 @@ export default class Card extends cc.Component {
         this.elixir.string = this._currentCard.elixir.toString();
         GLOBAL.CardTypes[draw.type] = 1;
         console.log("KEEY", draw.cardName);
+        console.log(GLOBAL.CardTypes);
         return;
       }
       console.log("DROP", draw.cardName);
+      console.log(GLOBAL.CardTypes);
     }
   }
 

@@ -98,7 +98,7 @@ export default class Player extends cc.Component {
   public update(dt) {
     if (GLOBAL.Pause) { return; }
     if (this.elixir <= Player.MAX_ELIXIR) {
-      this.elixir += 0.5 * dt;
+      this.elixir += dt;
     }
     this._processMove();
   }

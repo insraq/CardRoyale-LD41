@@ -46,6 +46,7 @@ export default class Canvas extends cc.Component {
     cc.view.enableAntiAlias(false);
     cc.director.getCollisionManager().enabled = true;
 
+    GLOBAL.CardTypes = {};
     GLOBAL.CanvasScript = this;
     // cc.director.getCollisionManager().enabledDebugDraw = true;
 
@@ -116,7 +117,7 @@ export default class Canvas extends cc.Component {
       } else {
         enemyScript.shoot();
       }
-    }, 2, cc.macro.REPEAT_FOREVER);
+    }, 1, cc.macro.REPEAT_FOREVER);
   }
 
   public update(dt) {
