@@ -146,7 +146,7 @@ export default class Card extends cc.Component {
   private _canBeUsed() {
     return GLOBAL.PlayerScript
       && GLOBAL.PlayerScript.elixir >= this.currentCard().elixir
-      && GLOBAL.PlayerScript.bullet > this.currentCard().bullet;
+      && GLOBAL.PlayerScript.bullet >= this.currentCard().bullet;
   }
 
   private drawCard() {
@@ -158,12 +158,8 @@ export default class Card extends cc.Component {
         this.cardName.string = this._currentCard.cardName;
         this.elixir.string = this._currentCard.elixir.toString();
         GLOBAL.CardTypes[draw.type] = 1;
-        console.log("KEEY", draw.cardName);
-        console.log(GLOBAL.CardTypes);
         return;
       }
-      console.log("DROP", draw.cardName);
-      console.log(GLOBAL.CardTypes);
     }
   }
 

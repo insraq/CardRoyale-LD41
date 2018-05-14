@@ -1,6 +1,6 @@
 import AddCollider from "./add_collider";
 import Bullet from "./bullet";
-import { CARDS, ICardDeck } from "./card";
+import { CARDS } from "./card";
 import { GLOBAL } from "./global";
 const { ccclass, property } = cc._decorator;
 
@@ -105,6 +105,7 @@ export default class Player extends cc.Component {
 
   public shoot() {
     if (this.bullet <= 0) { return; }
+    this.bullet--;
     const bullet = cc.instantiate(this.bulletPrefab);
     bullet.getComponent(Bullet).target = this.enemy.position;
     bullet.getComponent(Bullet).from = this.node;
